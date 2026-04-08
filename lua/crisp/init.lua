@@ -1,8 +1,8 @@
 local M = {}
 
 function M.setup()
-	vim.api.nvim_create_user_command("Command", function()
-		print("Hello from setup")
+	vim.api.nvim_create_user_command("Crack", function()
+		print("Crack!")
 	end, {})
 end
 
