@@ -2,7 +2,9 @@ local M = {}
 
 function M.show_files()
 	local buf = vim.api.nvim_create_buf(false, true)
-	local lines = vim.fn.systemlist("ls -la"):gsub("\n", "")
+	local lines = vim.tbl_map(function(line)
+		return line:gsub("\n", "")
+	end, vim.fn.systemlist("ls -la"))
 	vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
 	vim.api.nvim_buf_set_name(buf, "crisp-files")
 
