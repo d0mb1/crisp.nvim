@@ -137,7 +137,11 @@ end
 
 function M.render_right(entry)
 	local buf = vim.api.nvim_create_buf(false, true)
-	if entry and entry.is_dir then
+	if not entry then
+		vim.api.nvim_win_set_buf(M.state.wins.right, buf)
+		return
+	end
+	if entry.is_dir then
 		local sub_entries = M.read_dir(entry.path)
 		local lines = vim.tbl_map(function(e)
 			return (e.is_dir and "d" or "f") .. " " .. e.name
