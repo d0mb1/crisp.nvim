@@ -15,8 +15,9 @@ function M.show_files()
 	vim.keymap.set("n", "<CR>", function()
 		local lnum = vim.api.nvim_win_get_cursor(0)[1] - 1
 		local line = vim.api.nvim_buf_get_lines(buf, lnum, lnum + 1, false)[1]
-		local filename = line:match("^%S+%s+%S+%s+%S+%s+%S+%s+%S+%s+%S+%s+%S+%s+(%S+)")
-		if filename then
+		local parts = vim.split(line, "%s+")
+		local filename = table.concat(parts, " ", 9)
+		if filename ~= "" then
 			vim.api.nvim_buf_delete(buf, { force = true })
 			vim.cmd.edit(filename)
 		end
