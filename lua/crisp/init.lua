@@ -13,31 +13,32 @@ function M.setup()
 	end, {})
 end
 
-function M.setup_keymaps()
+function M.setup_keymaps(win)
+	local buf = vim.api.nvim_win_get_buf(win)
 	vim.keymap.set("n", "j", function()
 		if M.state.focused_idx < #M.state.entries then
 			M.state.focused_idx = M.state.focused_idx + 1
 			M.update_views()
 		end
-	end, { buffer = true })
+	end, { buffer = buf })
 
 	vim.keymap.set("n", "k", function()
 		if M.state.focused_idx > 1 then
 			M.state.focused_idx = M.state.focused_idx - 1
 			M.update_views()
 		end
-	end, { buffer = true })
+	end, { buffer = buf })
 
 	vim.keymap.set("n", "<CR>", function()
 		local entry = M.state.entries[M.state.focused_idx]
 		if entry and entry.is_dir then
 			M.open(entry.path)
 		end
-	end, { buffer = true })
+	end, { buffer = buf })
 
 	vim.keymap.set("n", "q", function()
 		vim.cmd("tabclose")
-	end, { buffer = true })
+	end, { buffer = buf })
 end
 
 function M.open(path)
@@ -51,15 +52,15 @@ end
 
 function M.read_dir(path)
 	local entries = {}
-	local handle = vim.loop.fs_scandir(path)
+	local handle = vim.uv.fs_scandir(path)
 	if handle then
 		while true do
-			local name = vim.loop.fs_scandir_next(handle)
+			local name = vim.uv.fs_scandir_next(handle)
 			if not name then
 				break
 			end
 			local full_path = path .. name
-			local stat = vim.loop.fs_stat(full_path)
+			local stat = vim.uv.fs_stat(full_path)
 			table.insert(entries, {
 				name = name,
 				path = full_path,
@@ -93,7 +94,6 @@ function M.update_views()
 	M.render_right(entries[idx])
 
 	vim.api.nvim_set_current_win(M.state.wins.center)
-	M.setup_keymaps()
 end
 
 function M.render_center(entries, idx)
@@ -105,10 +105,10 @@ function M.render_center(entries, idx)
 		table.insert(lines, prefix .. icon .. " " .. entry.name)
 	end
 	vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
-	vim.api.nvim_buf_set_option(buf, "modifiable", false)
+	vim.api.nvim_set_option_value("modifiable", false, { buf = buf })
 	vim.api.nvim_win_set_buf(M.state.wins.center, buf)
 
-	vim.api.nvim_win_set_option(M.state.wins.center, "number", true)
+	vim.api.nvim_set_option_value("number", true, { win = M.state.wins.center })
 	local ns = vim.api.nvim_create_namespace("crisp")
 	vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
 	if entries[idx] then
