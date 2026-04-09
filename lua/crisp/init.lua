@@ -12,6 +12,16 @@ function M.show_files()
 		vim.api.nvim_buf_delete(buf, { force = true })
 	end, { buffer = buf })
 
+	vim.keymap.set("n", "<CR>", function()
+		local lnum = vim.api.nvim_win_get_cursor(0)[1] - 1
+		local line = vim.api.nvim_buf_get_lines(buf, lnum, lnum + 1, false)[1]
+		local filename = line:match("^%S+%s+%S+%s+%S+%s+%S+%s+%S+%s+%S+%s+%S+%s+(%S+)")
+		if filename then
+			vim.api.nvim_buf_delete(buf, { force = true })
+			vim.cmd.edit(filename)
+		end
+	end, { buffer = buf })
+
 	local width = math.max(80, vim.o.columns - 10)
 	local height = math.max(20, vim.o.lines - 5)
 	local row = math.floor((vim.o.lines - height) / 2)
