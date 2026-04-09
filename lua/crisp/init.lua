@@ -83,6 +83,7 @@ function M.create_windows()
 		center = wins[2],
 		right = wins[3],
 	}
+	M.setup_keymaps(wins[2])
 end
 
 function M.update_views()
@@ -136,7 +137,7 @@ end
 
 function M.render_right(entry)
 	local buf = vim.api.nvim_create_buf(false, true)
-	if entry.is_dir then
+	if entry and entry.is_dir then
 		local sub_entries = M.read_dir(entry.path)
 		local lines = vim.tbl_map(function(e)
 			return (e.is_dir and "d" or "f") .. " " .. e.name
